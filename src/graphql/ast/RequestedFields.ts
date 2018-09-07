@@ -2,7 +2,7 @@ import * as graphqlFields from 'graphql-fields';
 import { GraphQLResolveInfo } from "graphql";
 import { difference, union } from 'lodash';
 
-export class RequestFields {
+export class RequestedFields {
   getFields(info: GraphQLResolveInfo, options?: {keep?: string[], exclude?: string[]}): string[] {
     let fields: string[] = Object.keys(graphqlFields(info));
     if (!options) { return fields; }
