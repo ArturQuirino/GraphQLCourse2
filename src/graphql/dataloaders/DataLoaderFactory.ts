@@ -18,11 +18,11 @@ export class DataLoaderFactory {
   getLoaders(): DataLoaders {
     return {
       userLoader: new DataLoader<DataLoaderParam<number>, UserInstance>(
-        (ids: DataLoaderParam<number>[]) => UserLoader.batchUser(this.db.User, params, this.requestedFields),
+        (params: DataLoaderParam<number>[]) => UserLoader.batchUser(this.db.User, params, this.requestedFields),
         { cacheKeyFn: (param: DataLoaderParam<number[]>) => param.key}
       ),
       postLoader: new DataLoader<DataLoaderParam<number>, PostInstance>(
-        (ids: DataLoaderParam<number>[]) => PostLoader.batchPosts(this.db.Post, params, this.requestedFields),
+        (params: DataLoaderParam<number>[]) => PostLoader.batchPosts(this.db.Post, params, this.requestedFields),
         { cacheKeyFn: (param: DataLoaderParam<number[]>) => param.key}
       )
     }
