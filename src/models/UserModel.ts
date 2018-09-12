@@ -2,7 +2,7 @@ import * as Sequelize from "sequelize";
 import { genSaltSync, hashSync, compareSync } from 'bcryptjs';
 
 import { BaseModelInterface } from "../interfaces/BaseModelInterface";
-import { ModeslInterface } from "../interfaces/ModelsInterface";
+import { ModelsInterface } from "../interfaces/ModelsInterface";
 
 export interface UserAttributes {
     id?: number;
@@ -21,7 +21,7 @@ export interface UserInstance extends Sequelize.Instance<UserAttributes>, UserAt
 export interface UserModel extends BaseModelInterface, Sequelize.Model<UserInstance, UserAttributes> {}
 
 export default (sequelize: Sequelize.Sequelize, DataTypes: Sequelize.DataTypes): UserModel => {
-    const User: UserModel = 
+    const User: UserModel =
         sequelize.define('User', {
             id: {
                 type: DataTypes.INTEGER,
@@ -68,7 +68,7 @@ export default (sequelize: Sequelize.Sequelize, DataTypes: Sequelize.DataTypes):
             }
         });
 
-        User.associate = (models: ModeslInterface): void => {}
+        User.associate = (models: ModelsInterface): void => {}
 
         User.prototype.isPassword = (encodedPassword: string, password: string): boolean => {
             return compareSync(password, encodedPassword);

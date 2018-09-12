@@ -1,6 +1,6 @@
 import * as  Sequelize  from "sequelize";
 import { BaseModelInterface } from "../interfaces/BaseModelInterface";
-import { ModeslInterface } from "../interfaces/ModelsInterface";
+import { ModelsInterface } from "../interfaces/ModelsInterface";
 
 export interface CommentAttributes {
     id?: number;
@@ -31,7 +31,7 @@ export default (sequelize: Sequelize.Sequelize, DataTypes: Sequelize.DataTypes):
         tableName: 'comments',
     });
 
-    Comment.associate = (models: ModeslInterface): void => {
+    Comment.associate = (models: ModelsInterface): void => {
         Comment.belongsTo(models.Post, {
             foreignKey: {
                 allowNull: false,

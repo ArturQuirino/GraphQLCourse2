@@ -1,13 +1,14 @@
 const postTypes = `
+
     type Post {
         id: ID!
         title: String!
         content: String!
         photo: String!
         createdAt: String!
-        updatedAt: String!
+        updated: String!
         author: User!
-        comments(first: Int, offset: Int): [Comment!]!
+        comments(first: Int, offset: Int): [ Comment! ]!
     }
 
     input PostInput {
@@ -15,10 +16,11 @@ const postTypes = `
         content: String!
         photo: String!
     }
+
 `;
 
 const postQueries = `
-    posts(first: Int, offset: Int): [Post!]!
+    posts(first: Int, offset: Int): [ Post! ]!
     post(id: ID!): Post
 `;
 

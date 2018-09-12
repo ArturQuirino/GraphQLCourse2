@@ -1,8 +1,12 @@
+import * as jwt from 'jsonwebtoken';
+
 import { app, db, chai, handleError, expect } from './../../test-utils';
 import { UserInstance } from '../../../src/models/UserModel';
+import { JWT_SECRET } from '../../../src/utils/utils';
 
 describe('User', () => {
 
+  let token: string;
   let userId: number;
 
   beforeEach(() => {
@@ -28,6 +32,8 @@ describe('User', () => {
       ]
     )).then((users: UserInstance[]) => {
       userId = users[0].get('id');
+      const payload = {sub: userId};
+      token = jwt.sign(payload, JWT_SECRET)
     })
   });
 
@@ -201,4 +207,181 @@ describe('User', () => {
       });
     })
   })
+
+  describe('Mutations', () => {
+
+    describe('application/json', () => {
+
+      describe('createUser', () => {
+
+        it('should create new user', () => {
+
+          let body = {
+              query: `
+                  mutation createNewUser($input: UserCreateInput!) {
+                      createUser(input: $input) {
+                          id
+                          name
+                          email
+                      }
+                  }
+              `,
+              variables: {
+                  input: {
+                      name: 'Drax',
+                      email: 'drax@guardians.com',
+                      password: '1234'
+                  }
+              }
+          };
+
+          return chai.request(app)
+              .post('/graphql')
+              .set('content-type', 'application/json')
+              .send(JSON.stringify(body))
+              .then(res => {
+                  const createdUser = res.body.data.createUser;
+                  expect(createdUser).to.be.an('object');
+                  expect(createdUser.name).to.equal('Drax');
+                  expect(createdUser.email).to.equal('drax@guardians.com');
+                  expect(parseInt(createdUser.id)).to.be.a('number');
+              }).catch(handleError);
+
+        })
+      })
+
+      describe('updateUser', () => {
+
+        it('should update an existing User', () => {
+
+          let body = {
+              query: `
+                  mutation updateExistingUser($input: UserUpdateInput!) {
+                      updateUser(input: $input) {
+                          name
+                          email
+                          photo
+                      }
+                  }
+              `,
+              variables: {
+                  input: {
+                      name: 'Star Lord',
+                      email: 'peter@guardians.com',
+                      photo: 'some_photo'
+                  }
+              }
+          };
+
+          return chai.request(app)
+              .post('/graphql')
+              .set('content-type', 'application/json')
+              .set('authorization', `Bearer ${token}`)
+              .send(JSON.stringify(body))
+              .then(res => {
+                  const updatedUser = res.body.data.updateUser;
+                  expect(updatedUser).to.be.an('object');
+                  expect(updatedUser.name).to.equal('Star Lord');
+                  expect(updatedUser.email).to.equal('peter@guardians.com');
+                  expect(updatedUser.photo).to.not.be.null;
+                  expect(updatedUser.id).to.be.undefined;
+              }).catch(handleError);
+
+        });
+
+
+        it('should block operation if tokin is invalid', () => {
+
+          let body = {
+              query: `
+                  mutation updateExistingUser($input: UserUpdateInput!) {
+                      updateUser(input: $input) {
+                          name
+                          email
+                          photo
+                      }
+                  }
+              `,
+              variables: {
+                  input: {
+                      name: 'Star Lord',
+                      email: 'peter@guardians.com',
+                      photo: 'some_photo'
+                  }
+              }
+          };
+
+          return chai.request(app)
+              .post('/graphql')
+              .set('content-type', 'application/json')
+              .set('authorization', 'Bearer INVALID_TOKEN')
+              .send(JSON.stringify(body))
+              .then(res => {
+                expect(res.body.data.updateUser).to.be.null;
+                expect(res.body).to.have.keys(['data', 'errors']);
+                expect(res.body.errors).to.be.an('array');
+                expect(res.body.errors[0].message).to.equal('JsonWebTokenError: jwt malformed')
+              }).catch(handleError);
+
+        });
+
+      });
+
+      describe('updateUserPassword', () => {
+
+        it('should update the password of an existing User', () => {
+
+          let body = {
+              query: `
+                  mutation updateUserPassword($input: UserUpdatePasswordInput!) {
+                      updateUserPassword(input: $input)
+                  }
+              `,
+              variables: {
+                  input: {
+                      password: 'peter123'
+                  }
+              }
+          };
+
+          return chai.request(app)
+              .post('/graphql')
+              .set('content-type', 'application/json')
+              .set('authorization', `Bearer ${token}`)
+              .send(JSON.stringify(body))
+              .then(res => {
+                expect(res.body.data.updateUserPassword).to.be.true;
+              }).catch(handleError);
+
+        });
+
+      });
+
+      describe('deleteUser', () => {
+
+        it('should delete an existing User', () => {
+
+          let body = {
+              query: `
+                  mutation {
+                      deleteUser
+                  }
+              `
+          };
+
+          return chai.request(app)
+              .post('/graphql')
+              .set('content-type', 'application/json')
+              .set('authorization', `Bearer ${token}`)
+              .send(JSON.stringify(body))
+              .then(res => {
+                expect(res.body.data.deleteUser).to.be.true;
+              }).catch(handleError);
+
+        });
+
+      })
+    });
+
+  });
 });

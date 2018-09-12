@@ -1,6 +1,6 @@
 import * as Sequelize from 'sequelize';
-import { ModeslInterface } from './ModelsInterface';
+import { ModelsInterface } from './ModelsInterface';
 
-export interface DbConnection extends ModeslInterface {
+export interface DbConnection extends ModelsInterface {
     sequelize: Sequelize.Sequelize;
 }
