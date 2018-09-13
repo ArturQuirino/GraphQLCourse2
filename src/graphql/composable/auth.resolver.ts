@@ -10,7 +10,7 @@ export const authResolver: ComposableResolver<any, ResolverContext> =
       if (context.authUser || context.authorization) {
         return resolver(parent, args, context, info);
       }
-      throw new Error('Unauthoraized! Token not provided!')
+      throw new Error('Unauthorized! Token not provided!')
     };
   };
 
